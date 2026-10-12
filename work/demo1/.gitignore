@@ -1,0 +1,8 @@
+# 本地配置与密钥
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/

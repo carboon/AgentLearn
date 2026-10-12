@@ -1,0 +1,10 @@
+# 真实运行所需的依赖
+#
+# 注意：--demo 模式（python main.py --demo）不需要安装任何第三方包，
+#       用 Python 标准库即可跑通，用来先看清主循环的运转方式。
+#
+# 安装：pip install -r requirements.txt
+
+requests
+tavily-python
+openai

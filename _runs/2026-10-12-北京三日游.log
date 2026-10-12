@@ -1,0 +1,250 @@
+已注册工具：get_attraction、get_weather
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ReAct 循环开始
+【用户输入】帮我规划一个北京三日游
+【注册工具】get_attraction、get_weather
+【最大轮数】8
+【system_prompt】441 字符，作为 system message 发给模型
+           第一行：你是一个智能旅行助手。你的任务是分析用户的请求，并使用可用工具一步步地解决问题。
+【初始 prompt_history】只有 1 段：'用户请求: 帮我规划一个北京三日游'
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  循环 1 / 8
+
+    ── ① 拼 Prompt：把 prompt_history 的 1 段用 '\n' 连成 1 个字符串
+    拼接后共 17 字符 —— 这就是真正发给模型的 user message：
+    ╭────────────────────────────────────────────────────────────────────
+    │ history[1] （用户写的）
+    │   用户请求: 帮我规划一个北京三日游
+    ├────────────────────────────────────────────────────────────────────
+    ╰────────────────────────────────────────────────────────────────────
+    另有 system message：441 字符（内容固定，见 system_prompt 文件）
+
+    ── ② 调用 LLM：generate(prompt, system_prompt)
+正在调用大语言模型...
+大语言模型响应成功。
+
+    ── ③ 截断：只保留第一对 Thought-Action
+    原始 105 字符 → 保留 105 字符
+    ✓ 模型很规矩，只吐了一对，本条规则没有实际生效
+
+    ── → 这一轮的模型输出（即将写入 prompt_history，105 字符）
+    │ Thought: 用户想要规划北京三日游。要规划旅行，我首先需要了解北京当前的天气情况，这样才能根据天气推荐合适的景点。第一步先查询北京的实时天气。
+    │ Action: get_weather(city="北京")
+
+    ── ④ 解析：从上面那段文本里抠出 Action
+    抠出的 Action 内容（22 字符）：
+      ▶ get_weather(city="北京")
+    → 判定为工具调用
+       CALL_RE      工具名   = 'get_weather'
+       参数字符串            = 'city="北京"'
+       QUOTED_ARG_RE 解析出  = {'city': '北京'}
+
+    ── ⑤ 判断：这是工具调用 → 进入第 ⑥ 步
+
+    ── ⑥ ★ 查字典执行工具 —— 「工具字典」唯一真正被用到的一步
+    a) 拿字符串 'get_weather' 去查 self.tools
+       字典里现有的键：['get_attraction', 'get_weather']
+       ✓ 查到 → <function get_weather at 0x105461430>
+         这一步就是「字符串 → 可调用对象」的唯一转换点。
+    b) 用 inspect.signature 读函数真实签名，校验参数
+       真实签名参数：city
+       模型给的参数：{'city': '北京'}
+    c) 真正调用：get_weather(city='北京')
+    d) 返回值 25 字符：
+       北京当前天气:Smoky haze，气温23摄氏度
+
+    ── ⑦ 追加 Observation → prompt_history 变成 3 段
+    ◀ 北京当前天气:Smoky haze，气温23摄氏度
+    → 回到第 ① 步，把加长后的历史整段再问一次模型
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  循环 2 / 8
+
+    ── ① 拼 Prompt：把 prompt_history 的 3 段用 '\n' 连成 1 个字符串
+    拼接后共 162 字符 —— 这就是真正发给模型的 user message：
+    ╭────────────────────────────────────────────────────────────────────
+    │ history[1] （用户写的）
+    │   用户请求: 帮我规划一个北京三日游
+    ├────────────────────────────────────────────────────────────────────
+    │ history[2] （模型上一轮的输出）
+    │   Thought: 用户想要规划北京三日游。要规划旅行，我首先需要了解北京当前的天气情况，这样才能根据天气推荐合适的景点。第一步先查询北京的实时天气。
+    │   Action: get_weather(city="北京")
+    ├────────────────────────────────────────────────────────────────────
+    │ history[3] （工具真实返回值）
+    │   Observation: 北京当前天气:Smoky haze，气温23摄氏度
+    ├────────────────────────────────────────────────────────────────────
+    ╰────────────────────────────────────────────────────────────────────
+    另有 system message：441 字符（内容固定，见 system_prompt 文件）
+
+    ── ② 调用 LLM：generate(prompt, system_prompt)
+正在调用大语言模型...
+大语言模型响应成功。
+
+    ── ③ 截断：只保留第一对 Thought-Action
+    原始 154 字符 → 保留 154 字符
+    ✓ 模型很规矩，只吐了一对，本条规则没有实际生效
+
+    ── → 这一轮的模型输出（即将写入 prompt_history，154 字符）
+    │ Thought: 已获取北京当前天气情况：烟霾（Smoky haze），气温23摄氏度。由于天气有烟霾，户外活动可能受限，我需要根据这个天气条件查询适合的景点推荐，以便为用户规划合理的三日游行程。
+    │ Action: get_attraction(city="北京", weather="Smoky haze")
+
+    ── ④ 解析：从上面那段文本里抠出 Action
+    抠出的 Action 内容（47 字符）：
+      ▶ get_attraction(city="北京", weather="Smoky haze")
+    → 判定为工具调用
+       CALL_RE      工具名   = 'get_attraction'
+       参数字符串            = 'city="北京", weather="Smoky haze"'
+       QUOTED_ARG_RE 解析出  = {'city': '北京', 'weather': 'Smoky haze'}
+
+    ── ⑤ 判断：这是工具调用 → 进入第 ⑥ 步
+
+    ── ⑥ ★ 查字典执行工具 —— 「工具字典」唯一真正被用到的一步
+    a) 拿字符串 'get_attraction' 去查 self.tools
+       字典里现有的键：['get_attraction', 'get_weather']
+       ✓ 查到 → <function get_attraction at 0x1054612d0>
+         这一步就是「字符串 → 可调用对象」的唯一转换点。
+    b) 用 inspect.signature 读函数真实签名，校验参数
+       真实签名参数：city, weather
+       模型给的参数：{'city': '北京', 'weather': 'Smoky haze'}
+    c) 真正调用：get_attraction(city='北京', weather='Smoky haze')
+    d) 返回值 552 字符：
+       According to the sources, when visiting Beijing under "smoky haze" weather, it is recommended to visit places with lakes, such as Beihai Park and Yuyu
+             ……（此处省略 252 字符，实际发送给模型的内容是完整的）……
+        provides a serene and tranquil atmosphere. These recommendations are based on the idea that rain can enhance the natural beauty of such environments.
+
+    ── ⑦ 追加 Observation → prompt_history 变成 5 段
+    ◀ According to the sources, when visiting Beijing under "smoky haze" weather, it is recommended to visit places with lakes, such as Beihai Park and Yuyuan Garden, as they look particularly beautiful in 
+    ◀       ……（此处省略 152 字符，实际发送给模型的内容是完整的）……
+    ◀ , Yuyuan Garden, with its misty and rainy scenery, provides a serene and tranquil atmosphere. These recommendations are based on the idea that rain can enhance the natural beauty of such environments.
+    → 回到第 ① 步，把加长后的历史整段再问一次模型
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  循环 3 / 8
+
+    ── ① 拼 Prompt：把 prompt_history 的 5 段用 '\n' 连成 1 个字符串
+    拼接后共 883 字符 —— 这就是真正发给模型的 user message：
+    ╭────────────────────────────────────────────────────────────────────
+    │ history[1] （用户写的）
+    │   用户请求: 帮我规划一个北京三日游
+    ├────────────────────────────────────────────────────────────────────
+    │ history[2] （模型上一轮的输出）
+    │   Thought: 用户想要规划北京三日游。要规划旅行，我首先需要了解北京当前的天气情况，这样才能根据天气推荐合适的景点。第一步先查询北京的实时天气。
+    │   Action: get_weather(city="北京")
+    ├────────────────────────────────────────────────────────────────────
+    │ history[3] （工具真实返回值）
+    │   Observation: 北京当前天气:Smoky haze，气温23摄氏度
+    ├────────────────────────────────────────────────────────────────────
+    │ history[4] （模型上一轮的输出）
+    │   Thought: 已获取北京当前天气情况：烟霾（Smoky haze），气温23摄氏度。由于天气有烟霾，户外活动可能受限，我需要根据这个天气条件查询适合的景点推荐，以便为用户规划合理的三日游行程。
+    │   Action: get_attraction(city="北京", weather="Smoky haze")
+    ├────────────────────────────────────────────────────────────────────
+    │ history[5] （工具真实返回值）
+    │   Observation: According to the sources, when visiting Beijing under "smoky haze" weather, it is recommended to visit places with lakes, such as Beihai Park and Yuyuan Garden, as they look particularly beautiful in the rain. Beihai Park, especially the area around the lake in the garden, is suggested to be particularly picturesque during rainy weather. Additionally, Yuyuan Garden, with its misty and rainy scenery, provides a serene and tranquil atmosphere. These recommendations are based on the idea that rain can enhance the natural beauty of such environments.
+    ├────────────────────────────────────────────────────────────────────
+    ╰────────────────────────────────────────────────────────────────────
+    另有 system message：441 字符（内容固定，见 system_prompt 文件）
+
+    ── ② 调用 LLM：generate(prompt, system_prompt)
+正在调用大语言模型...
+大语言模型响应成功。
+
+    ── ③ 截断：检测到这一步是 Finish → 整段放过，不做任何裁剪
+    原因：Finish 的正文是自由文本，可能多行、可能含 Markdown，
+          里面会出现一行以 Thought:/Action:/Observation: 开头的内容。
+          若照常截断，'Finish[...]' 会被切掉右括号 → 解析报错。
+
+    ── → 这一轮的模型输出（即将写入 prompt_history，647 字符）
+    │ Thought: 我已经收集到足够的信息：北京当前天气为烟霾（Smoky haze），气温23摄氏度；根据天气条件，推荐的景点类型是以湖泊水景为主的地方，如北海公园。现在我可以结合天气情况、景点推荐和常规热门景点，为用户规划一个合理的北京三日游行程，并给出烟霾天气下的出行提示。
+    │ Action: Finish[根据北京当前天气（烟霾，23℃）为您规划的三日游行程如下：
+    │ 
+    │ **行程总体思路**：烟霾天气下优先安排湖泊水景类景点（雾气中别有韵味）和室内展馆，减少长时间户外暴晒。
+    │ 
+    │ **第一天：北海公园及周边**
+    │ - 上午：游览北海公园，烟霾天气下湖面烟波浩渺，环湖景色尤美，可登白塔俯瞰
+    │ - 下午：漫步什刹海、烟袋斜街，体验老北京胡同风情
+    │ - 晚上：南锣鼓巷品尝小吃
+    │ 
+    │ **第二天：历史文化室内线路**
+    │ - 上午：故宫博物院（大量室内展厅，适合烟霾天参观，建议提前预约门票）
+    │ - 下午：景山公园短暂登高（视空气质量酌情）或国家博物馆深度参观
+    │ - 晚上：王府井大街逛街用餐
+    │ 
+    │ **第三天：颐和园**
+    │ - 上午：游览颐和园，昆明湖烟雨朦胧中宛如水墨画，长廊、佛香阁值得细看
+    │ - 下午：圆明园遗址公园或清华北大周边漫步
+    │ 
+    │ **出行提示**：
+    │ 1. 烟霾天气请佩戴口罩（推荐N95），减少剧烈户外运动
+    │ 2. 23℃气温舒适，建议穿轻薄外套
+    │ 3. 故宫、国家博物馆需提前在官方渠道实名预约
+    │ 4. 随身携带保湿用品，多喝水
+    │ 5. 如空气质量转差严重，可灵活将户外行程替换为室内博物馆
+    │ 
+    │ 祝您北京之行愉快！]
+
+    ── ④ 解析：从上面那段文本里抠出 Action
+    抠出的 Action 内容（499 字符）：
+      ▶ Finish[根据北京当前天气（烟霾，23℃）为您规划的三日游行程如下：
+      ▶ 
+      ▶ **行程总体思路**：烟霾天气下优先安排湖泊水景类景点（雾气中别有韵味）和室内展馆，减少长时间户外暴晒。
+      ▶ 
+      ▶ **第一天：北海公园及周边**
+      ▶ - 上午：游览北海公园，烟霾天气下湖面烟波浩渺，环湖景色尤美，可登白塔俯瞰
+      ▶ - 下午：漫步什刹海、烟袋斜街，体验老北京胡同风情
+      ▶ - 晚上：南锣鼓巷品尝小吃
+      ▶ 
+      ▶ **第二天：历史文化室内线路**
+      ▶ - 上午：故宫博物院（大量室内展厅，适合烟霾天参观，建议提前预约门票）
+      ▶ - 下午：景山公园短暂登高（视空气质量酌情）或国家博物馆深度参观
+      ▶ - 晚上：王府井大街逛街用餐
+      ▶ 
+      ▶ **第三天：颐和园**
+      ▶ - 上午：游览颐和园，昆明湖烟雨朦胧中宛如水墨画，长廊、佛香阁值得细看
+      ▶ - 下午：圆明园遗址公园或清华北大周边漫步
+      ▶ 
+      ▶ **出行提示**：
+      ▶ 1. 烟霾天气请佩戴口罩（推荐N95），减少剧烈户外运动
+      ▶ 2. 23℃气温舒适，建议穿轻薄外套
+      ▶ 3. 故宫、国家博物馆需提前在官方渠道实名预约
+      ▶ 4. 随身携带保湿用品，多喝水
+      ▶ 5. 如空气质量转差严重，可灵活将户外行程替换为室内博物馆
+      ▶ 
+      ▶ 祝您北京之行愉快！]
+    → 判定为 Finish，最终答案 491 字符
+
+    ── ⑤ 判断：Finish → 立即结束循环，不再追加 Observation
+    本次共循环 3 轮，调用 LLM 3 次。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  最终答案（491 字符）
+根据北京当前天气（烟霾，23℃）为您规划的三日游行程如下：
+
+**行程总体思路**：烟霾天气下优先安排湖泊水景类景点（雾气中别有韵味）和室内展馆，减少长时间户外暴晒。
+
+**第一天：北海公园及周边**
+- 上午：游览北海公园，烟霾天气下湖面烟波浩渺，环湖景色尤美，可登白塔俯瞰
+- 下午：漫步什刹海、烟袋斜街，体验老北京胡同风情
+- 晚上：南锣鼓巷品尝小吃
+
+**第二天：历史文化室内线路**
+- 上午：故宫博物院（大量室内展厅，适合烟霾天参观，建议提前预约门票）
+- 下午：景山公园短暂登高（视空气质量酌情）或国家博物馆深度参观
+- 晚上：王府井大街逛街用餐
+
+**第三天：颐和园**
+- 上午：游览颐和园，昆明湖烟雨朦胧中宛如水墨画，长廊、佛香阁值得细看
+- 下午：圆明园遗址公园或清华北大周边漫步
+
+**出行提示**：
+1. 烟霾天气请佩戴口罩（推荐N95），减少剧烈户外运动
+2. 23℃气温舒适，建议穿轻薄外套
+3. 故宫、国家博物馆需提前在官方渠道实名预约
+4. 随身携带保湿用品，多喝水
+5. 如空气质量转差严重，可灵活将户外行程替换为室内博物馆
+
+祝您北京之行愉快！
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

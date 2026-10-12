@@ -1,0 +1,54 @@
+# ─────────────────────────────────────────────────────────────
+# AgentLearn 仓库根 .gitignore
+#
+# 原则：只排除「密钥」和「可重新生成的缓存/系统文件」。
+#       三个第三方学习仓库按你的要求**全部提交**，不做裁剪。
+# ─────────────────────────────────────────────────────────────
+
+# ── 密钥与本地配置（绝对不能提交）──
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.secret
+credentials.json
+# 但示例文件要留着，方便别人照着填
+!.env.example
+!**/.env.example
+
+# ── macOS 系统文件 ──
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ── Python 运行时产物 ──
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── 可重新生成的缓存 ──
+# _tools/.cache 是 fetch-repos.py 下载时存的 GitHub 目录树快照，删掉会自动重建
+_tools/.cache/
+# 阅读器运行时的临时文件（如果有）
+_tools/reader/.cache/
+
+# ── 编辑器 / IDE ──
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── 若不想公开 WorkBuddy 的项目笔记，取消下面这行的注释 ──
+# .workbuddy/
